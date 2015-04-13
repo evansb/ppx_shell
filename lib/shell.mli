@@ -30,4 +30,4 @@ end
 module Command : Command_sig
 module Environment : Environment_sig
 
-val evaluate : Environment.t -> Command.t -> int * string
+val evaluate : ?env:Environment.t -> Command.t -> int * string

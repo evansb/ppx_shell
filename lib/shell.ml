@@ -51,4 +51,4 @@ let evaluate_unix t =
   (exit_status, output)
 
 let compose t1 t2 = t1 ^ "\n" ^ t2
-let evaluate env t = evaluate_unix (compose (Environment.to_string env) t)
+let evaluate ?(env=Environment.empty ()) t = evaluate_unix (compose (Environment.to_string env) t)

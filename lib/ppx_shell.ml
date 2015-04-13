@@ -8,25 +8,38 @@ open Longident
 open Shell
 open Environment_mapper
 
-let shell_mapper argv =
-  (* Our getenv_mapper only overrides the handling of expressions in the default mapper. *)
+let error_at loc = raise (Location.Error (Location.error ~loc
+  "Invalid use of [%sh], see README"))
+
+let mapper argv =
   { default_mapper with
     expr = fun mapper expr ->
       match expr with
-      (* Is this an extension node? *)
-      | { pexp_desc = Pexp_extension ({ txt = "sh"; loc }, pstr) } ->
-        begin match pstr with
-        | (* Should have a single structure item, which is evaluation of a constant string. *)
-          PStr [{ pstr_desc =
-                  Pstr_eval ({ pexp_loc  = loc;
-                               pexp_desc = Pexp_constant (Const_string (sym, None))}, _)}] ->
-          [%expr sym]
-        | _ ->
-          raise (Location.Error (
-              Location.error ~loc "Invalid use of [%sh], see README"))
+      | { pexp_desc = Pexp_extension ({ txt = "env"; loc }, _) } ->
+          (Environment_mapper.mapper argv).expr mapper expr
+      | { pexp_desc = Pexp_extension ({ txt = "sh"; loc }, expr) } ->
+        begin match expr with
+          | PStr [{ pstr_desc = Pstr_eval ({ pexp_loc = loc; pexp_desc = e}, _)}] ->
+            begin match e with
+              | Pexp_constant ((Const_string _) as s) ->
+                [%expr (Shell.evaluate [%e (Exp.constant ~loc s)])]
+              | Pexp_apply (e, es) ->
+                let env = (Environment_mapper.mapper argv).expr mapper e in
+                begin match es with
+                  | [(_, script)] ->
+                    begin match script.pexp_desc with
+                      | Pexp_constant ((Const_string _) as s) ->
+                        [%expr (Shell.evaluate ~env:[%e env]
+                          [%e (Exp.constant ~loc:script.pexp_loc s)])]
+                      | _ -> error_at script.pexp_loc
+                    end
+                  | _ -> error_at e.pexp_loc
+                end
+              | _ -> error_at loc
+            end
+          | _ -> error_at loc
         end
-      (* Delegate to the default mapper. *)
       | x -> default_mapper.expr mapper x;
   }
 
-let () = register "env" Environment_mapper.mapper
+let () = register "sh" mapper;
