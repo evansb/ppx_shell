@@ -28,6 +28,9 @@ module type Environment_sig = sig
 
   val from_assoc_list : (string * string) list -> t
   (** creates an environment from association list *)
+
+  val to_string : t -> string
+  (** creates a key, value pair string from the environment *)
 end
 
 module Command : Command_sig
