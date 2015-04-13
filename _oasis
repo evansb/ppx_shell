@@ -16,3 +16,8 @@ Executable ppx_shell
   BuildDepends:   Unix, compiler-libs.common, ppx_tools.metaquot
   MainIs:         ppx_shell.ml
   CompiledObject: best
+
+Test test_ppx_shell
+  Command:        ocamlbuild -I lib -package oUnit -cflags '-ppx $ppx_shell' test/test_ppx_shell.byte
+  TestTools:      ppx_getenv
+
