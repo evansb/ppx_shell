@@ -34,4 +34,6 @@ and Env : Env_sig = struct
     tbl
 
   let from_parsetree expr = empty ()
+
+  let to_command t = Hashtbl.fold (fun e v acc -> (e^"="^v^"\n"^acc)) t ""
 end
