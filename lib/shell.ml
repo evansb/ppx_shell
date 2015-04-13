@@ -1,29 +1,51 @@
 
 module type Command_sig = sig
   type t
+  type e
   val empty : t
   val from_parsetree : Parsetree.expression -> t
-  val evaluate : Env.t -> t -> (int * string)
+  val evaluate : e -> t -> (int * string)
 end
 
-module type Env_sig = sig
+module type Environment_sig = sig
   type t
   val empty : unit -> t
   val from_parsetree : Parsetree.expression -> t
   val from_assoc_list : (string * string) list -> t
 end
 
-module rec Command : Command_sig = struct
+module MakeCommand(E : Environment_sig) : (Command_sig with type e = E.t) =
+struct
   type t = string
+
+  type e = E.t
 
   let empty = ""
 
   let from_parsetree expr = empty
 
-  let evaluate env t = (0, "")
+  let compose t1 t2 = t1 ^ "\n" ^ t2
+
+  let evaluate_unix t =
+    let open Unix in
+    let ichan = open_process_in t in
+    let buf = Buffer.create 96 in
+    let () = try
+      while true do Buffer.add_channel buf ichan 1 done
+      with End_of_file -> () in
+    let exit_status =
+      match close_process_in ichan with
+        | WEXITED n -> n
+        | WSIGNALED n -> n
+        | WSTOPPED n -> n
+    in
+    let output = Buffer.contents buf in
+    (exit_status, output)
+
+  let evaluate env t = evaluate_unix (compose "" t)
 end
 
-and Env : Env_sig = struct
+module MakeEnvironment(C : Command_sig) : Environment_sig = struct
   type t = (string, string) Hashtbl.t
 
   let empty () = Hashtbl.create 10
@@ -37,3 +59,7 @@ and Env : Env_sig = struct
 
   let to_command t = Hashtbl.fold (fun e v acc -> (e^"="^v^"\n"^acc)) t ""
 end
+
+module rec Command : Command_sig = MakeCommand(Environment)
+and Environment : Environment_sig = MakeEnvironment(Command)
+

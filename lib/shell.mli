@@ -1,18 +1,25 @@
 
 module type Command_sig = sig
   type t
+  (** type of the command *)
+
+  type e
+  (** type of the environment *)
+
   val empty : t
   (** creates empty command that does nothing when executed *)
 
   val from_parsetree : Parsetree.expression -> t
   (** creates command from an OCaml expression *)
 
-  val evaluate : Env.t -> t -> (int * string)
+  val evaluate : e -> t -> (int * string)
   (** evaluates a command, returning the exit code and the stdout *)
 end
 
-module type Env_sig = sig
+module type Environment_sig = sig
   type t
+  (** type of the environment *)
+
   val empty : unit -> t
   (** creates empty environment *)
 
@@ -24,4 +31,4 @@ module type Env_sig = sig
 end
 
 module Command : Command_sig
-module Env : Env_sig
+module Environment : Environment_sig
