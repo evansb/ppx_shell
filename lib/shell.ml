@@ -3,13 +3,12 @@ module type Command_sig = sig
   type t = string
   val empty : t
   val from_string : string -> t
-  val from_parsetree : Parsetree.expression -> t
 end
 
 module type Environment_sig = sig
   type t = (string, string) Hashtbl.t
   val empty : unit -> t
-  val from_parsetree : Parsetree.expression -> t
+  val singleton : (string * string) -> t
   val from_assoc_list : (string * string) list -> t
   val to_string : t -> string
 end
@@ -19,18 +18,19 @@ struct
   type t = string
   let empty = ""
   let from_string s = s
-  let from_parsetree expr = empty
 end
 
 module Environment : Environment_sig =
 struct
   type t = (string, string) Hashtbl.t
   let empty () = Hashtbl.create 10
+  let singleton (s, t) =
+    let tbl = Hashtbl.create 10 in
+    Hashtbl.add tbl s t; tbl
   let from_assoc_list xs =
     let tbl = empty () in
     let () = List.iter (fun (e, v) -> Hashtbl.add tbl e v) xs in
     tbl
-  let from_parsetree expr = empty ()
   let to_string t = Hashtbl.fold (fun e v acc -> (e^"="^v^"\n"^acc)) t ""
 end
 

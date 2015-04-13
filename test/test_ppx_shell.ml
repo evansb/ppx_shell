@@ -22,10 +22,20 @@ let backend_execute_noenv _ =
   assert_equal exit_code 0;
   assert_equal output "Hello World\n"
 
+let environment_extension _ =
+  let a = "1" in
+  assert_equal [%env a] (Environment.singleton ("a", "1"))
+
+let environment_extension _ =
+  let a = "1" in
+  let b = "2" in
+  assert_equal [%env a b] (Environment.from_assoc_list [("a", "1"); ("b", "2")])
+
 let suite = "ppx shell test suite" >::: [
   "env_to_string" >:: env_to_string;
   "backend_execute_env" >:: backend_execute_env;
-  "backend_execute_env" >:: backend_execute_noenv
+  "backend_execute_env" >:: backend_execute_noenv;
+  "environment_extension_multi" >:: environment_extension
 ]
 
 let _ = run_test_tt_main suite

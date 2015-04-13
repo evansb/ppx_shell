@@ -8,9 +8,6 @@ module type Command_sig = sig
 
   val from_string : string -> t
   (** creates a command from a string *)
-
-  val from_parsetree : Parsetree.expression -> t
-  (** creates command from an OCaml expression *)
 end
 
 module type Environment_sig = sig
@@ -20,8 +17,8 @@ module type Environment_sig = sig
   val empty : unit -> t
   (** creates empty environment *)
 
-  val from_parsetree : Parsetree.expression -> t
-  (** creates an environment from OCaml expression *)
+  val singleton : (string * string) -> t
+  (** creates environment with one value *)
 
   val from_assoc_list : (string * string) list -> t
   (** creates an environment from association list *)
