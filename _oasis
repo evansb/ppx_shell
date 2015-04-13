@@ -18,6 +18,9 @@ Executable ppx_shell
   CompiledObject: best
 
 Test test_ppx_shell
-  Command:        ocamlbuild -I lib -package oUnit -cflags '-ppx $ppx_shell' test/test_ppx_shell.byte
+  Command:        ocamlbuild -use-ocamlfind \
+                  -I lib -pkgs oUnit,Unix,compiler-libs.common \
+                  -cflags '-ppx $ppx_shell' \
+                  test/test_ppx_shell.byte --
   TestTools:      ppx_getenv
 
