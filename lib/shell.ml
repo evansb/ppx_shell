@@ -18,15 +18,10 @@ end
 module MakeCommand(E : Environment_sig) : (Command_sig with type e = E.t) =
 struct
   type t = string
-
   type e = E.t
-
   let empty = ""
-
   let from_parsetree expr = empty
-
   let compose t1 t2 = t1 ^ "\n" ^ t2
-
   let evaluate_unix t =
     let open Unix in
     let ichan = open_process_in t in
@@ -42,23 +37,18 @@ struct
     in
     let output = Buffer.contents buf in
     (exit_status, output)
-
   let evaluate env t = evaluate_unix (compose (E.to_string env) t)
 end
 
 module MakeEnvironment(C : Command_sig) : Environment_sig =
 struct
   type t = (string, string) Hashtbl.t
-
   let empty () = Hashtbl.create 10
-
   let from_assoc_list xs =
     let tbl = empty () in
     let () = List.iter (fun (e, v) -> Hashtbl.add tbl e v) xs in
     tbl
-
   let from_parsetree expr = empty ()
-
   let to_string t = Hashtbl.fold (fun e v acc -> (e^"="^v^"\n"^acc)) t ""
 end
 
