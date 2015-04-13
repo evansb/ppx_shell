@@ -1,22 +1,15 @@
 
-
 module type Command_sig = sig
   type t
-
   val empty : t
-
   val from_parsetree : Parsetree.expression -> t
-
   val evaluate : Env.t -> t -> (int * string)
 end
 
 module type Env_sig = sig
   type t
-
   val empty : unit -> t
-
   val from_parsetree : Parsetree.expression -> t
-
   val from_assoc_list : (string * string) list -> t
 end
 
