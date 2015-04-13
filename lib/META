@@ -1,0 +1,2 @@
+version = "$(pkg_ver)"
+ppx = "ppx_shell"

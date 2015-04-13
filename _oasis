@@ -1,0 +1,18 @@
+OASISFormat: 	0.4
+Name:        	ppx_shell
+Version:     	0.0.1
+Synopsis:    	OCaml language extension for shell scripting
+Authors:     	Evan Sebastian
+License:     	MIT
+Plugins:     	META (0.4)
+OCamlVersion:	>= 4.02
+BuildTools:     ocamlbuild
+
+PreInstallCommand:   $ocamlfind install ppx_shell lib/META
+PreUninstallCommand: $ocamlfind remove ppx_shell
+
+Executable ppx_shell
+  Path:           lib
+  BuildDepends:   compiler-libs.common, ppx_tools.metaquot
+  MainIs:         ppx_shell.ml
+  CompiledObject: best
