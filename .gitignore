@@ -1,5 +1,6 @@
 _build
 *.native
 *.data
-*.logtest_ppx_shell.byte
+*.log
 setup.log
+test_ppx_shell.byte
