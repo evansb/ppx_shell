@@ -4,6 +4,8 @@ open Asttypes
 open Parsetree
 open Longident
 
+open Shell
+
 let shell_mapper argv =
   (* Our getenv_mapper only overrides the handling of expressions in the default mapper. *)
   { default_mapper with
