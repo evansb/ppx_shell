@@ -13,6 +13,6 @@ PreUninstallCommand: $ocamlfind remove ppx_shell
 
 Executable ppx_shell
   Path:           lib
-  BuildDepends:   compiler-libs.common, ppx_tools.metaquot
+  BuildDepends:   Unix, compiler-libs.common, ppx_tools.metaquot
   MainIs:         ppx_shell.ml
   CompiledObject: best
