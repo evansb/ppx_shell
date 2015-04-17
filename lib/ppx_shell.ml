@@ -22,7 +22,9 @@ let mapper argv =
           | PStr [{ pstr_desc = Pstr_eval ({ pexp_loc = loc; pexp_desc = e}, _)}] ->
             begin match e with
               | Pexp_constant ((Const_string _) as s) ->
-                [%expr (Shell.evaluate [%e (Exp.constant ~loc s)])]
+                let assoc_list = [%expr []] in
+                let env = [%expr (Environment.from_assoc_list [%e assoc_list])] in
+                [%expr (Shell.evaluate ~env:[%e env] [%e (Exp.constant ~loc s)])]
               | Pexp_apply (e, es) ->
                 let env = (Environment_mapper.mapper argv).expr mapper e in
                 begin match es with
