@@ -45,6 +45,10 @@ let shell_execution_with_bound_var _ =
   let env = [%env x y] in
   assert_equal [%sh env {| echo $(($x + $y)) |}] (0, "3\n")
 
+let shell_execution_with_capture _ =
+  let echo = "echo" in
+  assert_equal [%sh {| $echo Hello World |}] (0, "Hello World\n")
+
 let suite = "ppx shell test suite" >::: [
   "env_to_string" >:: env_to_string;
   "backend_execute_env" >:: backend_execute_env;
@@ -53,7 +57,8 @@ let suite = "ppx shell test suite" >::: [
   "environment_extension_multi" >:: environment_extension_multi;
   "shell_execution_simple" >:: shell_execution_simple;
   "shell_execution_with_var" >:: shell_execution_with_var;
-  "shell_execution_with_bound_var" >:: shell_execution_with_bound_var
+  "shell_execution_with_bound_var" >:: shell_execution_with_bound_var;
+  "shell_execution_with_capture" >:: shell_execution_with_capture
 ]
 
 let _ = run_test_tt_main suite

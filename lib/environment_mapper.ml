@@ -39,6 +39,12 @@ let expr_assoc_list xs =
       end
     | _ -> failwith "Impossible"
 
+let list_to_expr_assoc_list xs =
+  List.fold_right (fun x acc ->
+      let open Ast_convenience in
+      let t = tuple [str x; evar x] in
+      [%expr [%e t] :: [%e acc]]) xs ([%expr []])
+
 let mapper argv =
   { default_mapper with
     expr = fun mapper expr ->

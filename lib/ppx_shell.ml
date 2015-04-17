@@ -11,6 +11,13 @@ open Environment_mapper
 let error_at loc = raise (Location.Error (Location.error ~loc
   "Invalid use of [%sh], see README"))
 
+let script_to_id_list s =
+  let pat = "\\$(\\w+)\\s?" in
+  try
+    let matches = Pcre.exec_all ~pat s in
+    Array.to_list (Array.map (fun m -> (Pcre.get_substrings m).(1)) matches)
+  with _ -> []
+
 let mapper argv =
   { default_mapper with
     expr = fun mapper expr ->
@@ -21,8 +28,10 @@ let mapper argv =
         begin match expr with
           | PStr [{ pstr_desc = Pstr_eval ({ pexp_loc = loc; pexp_desc = e}, _)}] ->
             begin match e with
-              | Pexp_constant ((Const_string _) as s) ->
-                let assoc_list = [%expr []] in
+              | Pexp_constant ((Const_string (ss, _)) as s) ->
+                let id_list = script_to_id_list ss in
+                let assoc_list =
+                  Environment_mapper.list_to_expr_assoc_list id_list in
                 let env = [%expr (Environment.from_assoc_list [%e assoc_list])] in
                 [%expr (Shell.evaluate ~env:[%e env] [%e (Exp.constant ~loc s)])]
               | Pexp_apply (e, es) ->
